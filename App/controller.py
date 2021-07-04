@@ -29,10 +29,77 @@ import csv
 El controlador se encarga de mediar entre la vista y el modelo.
 """
 
-# Inicialización del Catálogo de libros
+# Inicialización del Catálogo de videos
 
+def initCatalog(type):
+    """
+    Llama la funcion de inicializacion del catalogo del modelo.
+    """
+    catalog = model.newCatalog(type)
+    return catalog
+
+    
 # Funciones para la carga de datos
 
+def loadData(catalog):
+    """
+    Carga los datos de los archivos y cargar los datos en la
+    estructura de datos
+    """
+    loadCategories(catalog)
+    loadVideos(catalog)
+
+
+def loadCategories(catalog):
+    catfile = cf.data_dir + "Videos/category-id.csv"
+    input_file = csv.DictReader(open(catfile,encoding='utf-8'), delimiter="\t")
+    for category in input_file:
+        model.loadCategory(catalog, category)
+
+def loadVideos(catalog):
+    # TODO Cambiar a videos-large.csv para producción
+    vidsfile = cf.data_dir + "Videos/videos-large.csv"
+    input_file = csv.DictReader(open(vidsfile,encoding='utf-8'))
+    for video in input_file:
+        model.addVideo(catalog, video)
+
 # Funciones de ordenamiento
+def srtVidsByLikes(catalog, srtType):
+    """
+    Llama a la función sortVidsByLikes del model.py
+    """
+    return model.srtVidsByLikes(catalog, srtType)
+
 
 # Funciones de consulta sobre el catálogo
+
+def catPos(catalog, catName):
+    """
+    Llama a la función catPos del model.py
+    """
+    return model.catPos(catalog, catName)
+
+
+def trendingVidCat(catalog, catPos):
+    """
+    Llama a la función model.trendingVidCat()
+    """
+    return model.trendingVidCat(catalog, catPos)
+
+
+def topVidsCatCountry(catalog, catPos, countryName, topN):
+    """
+    Llama a la función topVidsCatCountry del model.py
+    """
+    return model.topVidsCatCountry(catalog, catPos, countryName,
+    topN)
+
+
+def mostCommentedVids(catalog, country, tagName, topN):
+    """
+    Llama a la función model.mostCommentedVids()
+    """
+    return model.mostCommentedVid(catalog, country, tagName, topN)
+
+def trendingVidCountry(catalog, country):
+    return model.trendingVidCountry(catalog, country)
