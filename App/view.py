@@ -108,11 +108,11 @@ while True:
     inputs = input('Seleccione una opción para continuar\n')
     if int(inputs[0]) == 1:
         catalog = initCatalog()
-        loadData(catalog)
+        loadStats = loadData(catalog)
         print('Videos cargados: ' + str(lt.size(catalog['videos'])) + "\n")
-        print("Categorías cargadas:", str(mp.size(catalog["catVids"])))
-        for catName in lt.iterator(mp.keySet(catalog["catVids"])):
-            print(catName, ":", lt.size(me.getValue(mp.get(catalog["catVids"], catName))))
+        print("Categorías cargadas: ", mp.size(catalog["catVids"]))
+        print("Tiempo de carga:", loadStats[0], "[ms]")
+        print("Memoria utilizada:", loadStats[1], "[kB]")
         input("\nENTER para continuar")
 
     elif int(inputs[0]) == 2:
