@@ -20,11 +20,13 @@
  * along withthis program.  If not, see <http://www.gnu.org/licenses/>.
  """
 
-import config as cf
 import sys
+import config as cf
 import controller
-from DISClib.ADT import list as lt
 assert cf
+from DISClib.ADT import list as lt #TAD Lista
+from DISClib.ADT import map as mp #TAD map
+from DISClib.DataStructures import mapentry as me #TAD map
 
 
 """
@@ -35,13 +37,10 @@ operación solicitada
 """
 
 def printMenu():
-    print("** ADVERTENCIA: ALGUNAS OPCIONES DEL MENÚ NO HAN SIDO IMPLEMENTADAS **") #TODO Eliminar advertencia
+    #TODO corregir menú a requerimientos
     print("Bienvenido")
     print("1- Cargar información en el catálogo")
-    print("2- Top N videos con más likes tendencia en país - categoría")
-    print("3- Vídeo que más días ha sido trending en un país")
-    print("4- Video que más días ha sido trending en una categoría")
-    print("5- N videos con más comentarios en país")
+    print("2- N videos con mas views de una categoría")
     print("0- Salir")
 
 
@@ -72,11 +71,11 @@ def printRow(row: list) -> None:
     
 
 
-def initCatalog(type):
+def initCatalog():
     """
     Inicializa el catálogo de videos
     """
-    return controller.initCatalog(type)
+    return controller.initCatalog()
 
 
 def loadData(catalog):
@@ -87,27 +86,6 @@ def loadData(catalog):
 
 
 catalog = None
-
-
-def categotyInput(catalog) -> int:
-    """
-    Le pide al usuario que ingrese una categoría (por nombre)
-    Devuelve la posición de la categoría en la lista de 
-    categorías (int)
-
-    Args:
-        catalog -- catálofo de videos
-    """
-    catPos = 0
-    #User category input
-    while catPos == 0:
-        catName = input("Buscar en categoría: ").strip()
-        catPos = controller.catPos(catalog, catName)
-        if catPos == 0:
-            print("Categoría no encontrada. Intente nuevamente.")
-    
-    return catPos
-
 
 def topNInput() -> int:
     """
@@ -129,73 +107,55 @@ while True:
     printMenu()
     inputs = input('Seleccione una opción para continuar\n')
     if int(inputs[0]) == 1:
-        #Inicializa el catálogo en modo array_list
-        catalog = initCatalog(1)
+        catalog = initCatalog()
         loadData(catalog)
         print('Videos cargados: ' + str(lt.size(catalog['videos'])) + "\n")
-        #Información del primer video cargado
-        firstVid = lt.getElement(catalog["videos"], 1)
-        print("Primer video cargado:")
-        printRow([[30,20,15,15,10,10,10], ["Titulo", "Canal", "Trend Date", "País", "Vistas", "Likes", "Dislikes"]])
-        printRow([
-            [30,20,15,15,10,10,10],
-            [firstVid["title"], firstVid["channel_title"], firstVid["trending_date"], firstVid["country"], 
-            firstVid["views"], firstVid["likes"], firstVid["dislikes"]]
-        ])
-        print("")
-        #Información de categorías cargadas
-        print("Categorías cargadas:")
-        printRow([
-            [4,30],
-            ["id", "Nombre"]
-        ])
-        for i in range(1, lt.size(catalog["categories"]) + 1):
-            cat = lt.getElement(catalog["categories"], i)
-            printRow([
-                [4,30],
-                [cat["id"], cat["name"]]
-            ])
+        print("Categorías cargadas:", str(mp.size(catalog["catVids"])))
+        for catName in lt.iterator(mp.keySet(catalog["catVids"])):
+            print(catName, ":", lt.size(me.getValue(mp.get(catalog["catVids"], catName))))
         input("\nENTER para continuar")
 
     elif int(inputs[0]) == 2:
-        #REQ1
+        #Top n videos con mas vistas de una categoría
         #User category input
-        catPos = categotyInput(catalog)
-        #User country input
-        countryName = input("Buscar en país: ").strip()
+        catName = input("Buscar en categoría: ")
         #User topN input
         topN = topNInput()
-        #Exec
-        topVideos = controller.topVidsCatCountry(catalog, catPos, countryName,
-        topN)
+        #Consulta
+        topVideos = controller.topVidsCat(catalog, catName, topN)
         #Output results
-        printRow([
-            [15, 40, 20, 25, 10, 10, 10],
-            [
-                "Trending date",
-                "Title",
-                "Channel title",
-                "Publish time",
-                "Views",
-                "likes",
-                "dislikes"
-            ]
-        ])
-        for video in lt.iterator(topVideos):
+        #Check if category was found
+        if not topVideos:
+            print("Categoría no encontrada")
+        else:
             printRow([
-            [15, 40, 20, 25, 10, 10, 10],
-            [
-                video["trending_date"],
-                video["title"],
-                video["channel_title"],
-                video["publish_time"],
-                video["views"],
-                video["likes"],
-                video["dislikes"]
-            ]
-        ])
-        if topVideos["size"] < topN:
-            print("Solo", topVideos["size"], "cumplen las condiciones de búsqueda")
+                [15, 40, 20, 25, 10, 10, 10],
+                [
+                    "Trending date",
+                    "Title",
+                    "Channel title",
+                    "Publish time",
+                    "Views",
+                    "likes",
+                    "dislikes"
+                ]
+            ])
+            for video in lt.iterator(topVideos):
+                printRow([
+                [15, 40, 20, 25, 10, 10, 10],
+                [
+                    video["trending_date"],
+                    video["title"],
+                    video["channel_title"],
+                    video["publish_time"],
+                    video["views"],
+                    video["likes"],
+                    video["dislikes"]
+                ]
+            ])
+            #Check if requested more videos that they are
+            if topVideos["size"] < topN:
+                print("Solo", topVideos["size"], "cumplen las condiciones de búsqueda")
         input("\nENTRE para continuar")
     
     elif int(inputs[0]) == 3:

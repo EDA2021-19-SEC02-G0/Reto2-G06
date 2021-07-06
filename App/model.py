@@ -38,7 +38,7 @@ los mismos.
 """
 
 # Construccion de modelos
-def newCatalog(type):
+def newCatalog():
     """
     Inicializa el catálogo de videos. Crea una lista vacia para guardar
     todos los videos, adicionalmente, crea una lista vacia para las categorías,
@@ -49,12 +49,6 @@ def newCatalog(type):
     Args:
         type: int -- 1 para cargar los datos en ARRAY_LIST, 2 para cargar los datos en SINGLE_LINKED
     """
-    if type == 1:
-        lstType = "ARRAY_LIST"
-    elif type == 2:
-        lstType = "SINGLE_LINKED"
-    else:
-        raise Exception("Invalid type in model.newCatalog()")
         
     catalog = {
         "videos": None,
@@ -62,10 +56,9 @@ def newCatalog(type):
         "categories": None #Tabla con <id, catName> que relaciona id de categoría con el nombre de la categoría
     }
 
-    catalog["videos"] = lt.newList(lstType)
-    catalog["catVids"] = mp.newMap(1000, 
-    loadfactor=4, comparefunction=compareCategory)
-    catalog["categories"] = mp.newMap(32, loadfactor=4, comparefunction=compareCategory)
+    catalog["videos"] = lt.newList("ARRAY_LIST")
+    catalog["catVids"] = mp.newMap(1000, loadfactor=4)
+    catalog["categories"] = mp.newMap(32, loadfactor=4)
     
     return catalog        
 
@@ -94,9 +87,9 @@ def addVideo(catalog, video):
     #Obtener nombre de la categoría del video
     catEntry = mp.get(catalog["categories"], int(video["category_id"]))
     catName = me.getValue(catEntry)
-    #Añade el libro a la 
+    #Añade el libro a la lista de libros en la categoría
     catVidsEntry = mp.get(catalog["catVids"], catName)
-    catVids = me.get(catVidsEntry)
+    catVids = me.getValue(catVidsEntry)
     lt.addLast(catVids, video) 
 
 # Funciones para creacion de datos

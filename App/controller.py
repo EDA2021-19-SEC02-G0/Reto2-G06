@@ -31,11 +31,11 @@ El controlador se encarga de mediar entre la vista y el modelo.
 
 # Inicialización del Catálogo de videos
 
-def initCatalog(type):
+def initCatalog():
     """
     Llama la funcion de inicializacion del catalogo del modelo.
     """
-    catalog = model.newCatalog(type)
+    catalog = model.newCatalog()
     return catalog
 
     
@@ -51,14 +51,14 @@ def loadData(catalog):
 
 
 def loadCategories(catalog):
-    catfile = cf.data_dir + "Videos/category-id.csv"
+    catfile = cf.data_dir + "category-id.csv"
     input_file = csv.DictReader(open(catfile,encoding='utf-8'), delimiter="\t")
     for category in input_file:
         model.loadCategory(catalog, category)
 
 def loadVideos(catalog):
     # TODO Cambiar a videos-large.csv para producción
-    vidsfile = cf.data_dir + "Videos/videos-large.csv"
+    vidsfile = cf.data_dir + "videos-large.csv"
     input_file = csv.DictReader(open(vidsfile,encoding='utf-8'))
     for video in input_file:
         model.addVideo(catalog, video)
@@ -103,3 +103,7 @@ def mostCommentedVids(catalog, country, tagName, topN):
 
 def trendingVidCountry(catalog, country):
     return model.trendingVidCountry(catalog, country)
+
+#TODO Eliminar función para Reto (solo se utiliza para labs)
+def topVidsCat(catalog, catName: str, topN: int):
+    return model.topVidsCat(catalog, catName, topN)
