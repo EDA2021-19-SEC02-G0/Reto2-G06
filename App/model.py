@@ -38,7 +38,7 @@ los mismos.
 """
 
 # Construccion de modelos
-def newCatalog():
+def newCatalog(colisionMan: int, loadFactor: float):
     """
     Inicializa el catálogo de videos. Crea una lista vacia para guardar
     todos los videos, adicionalmente, crea una lista vacia para las categorías,
@@ -47,9 +47,23 @@ def newCatalog():
     las listas con ARRAY_LIST o SINGLE_LINKED
 
     Args:
-        type: int -- 1 para cargar los datos en ARRAY_LIST, 2 para cargar los datos en SINGLE_LINKED
+        colisionMan: int -- Define el manejo de colisiones para los tad MAP del catalogo
+            - 0 para Separate Chaining
+            - 1 para Linear Probing
+        loadFactor: float -- Factor de carga para los tad MAP del catalogo
+    
+    Returns:
+        Catalogo vacío
     """
-        
+    if colisionMan == 0:
+        mapType = "CHAINING"
+    elif colisionMan == 1:
+        mapType = "PROBING"
+        if loadFactor >= 1:
+            raise Exception("Invalid loadfactor for Linear Probing Map")
+    else:
+        raise Exception("Invalid colision managment type (colisionMan) in model.newCatalog()")
+
     catalog = {
         "videos": None,
         "catVids": None, #Mapa con <category, list> donde list es una lista de videos con la category
@@ -57,8 +71,8 @@ def newCatalog():
     }
 
     catalog["videos"] = lt.newList("ARRAY_LIST")
-    catalog["catVids"] = mp.newMap(1000, loadfactor=4)
-    catalog["categories"] = mp.newMap(32, loadfactor=4)
+    catalog["catVids"] = mp.newMap(32, maptype=mapType, loadfactor=loadFactor)
+    catalog["categories"] = mp.newMap(32, maptype=mapType, loadfactor=loadFactor)
     
     return catalog        
 
