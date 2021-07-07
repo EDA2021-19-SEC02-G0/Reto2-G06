@@ -111,8 +111,8 @@ while True:
         loadStats = loadData(catalog)
         print('Videos cargados: ' + str(lt.size(catalog['videos'])) + "\n")
         print("Categorías cargadas: ", mp.size(catalog["catVids"]))
-        print("Tiempo de carga:", loadStats[0], "[ms]")
-        print("Memoria utilizada:", loadStats[1], "[kB]")
+        print("Tiempo de carga:", round(loadStats[0], 3), "[ms]")
+        print("Memoria utilizada:", round(loadStats[1], 3), "[kB]")
         input("\nENTER para continuar")
 
     elif int(inputs[0]) == 2:
