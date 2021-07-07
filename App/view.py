@@ -70,21 +70,6 @@ def printRow(row: list) -> None:
     print(rowFormat.format(*row[1]))
     
 
-
-def initCatalog():
-    """
-    Inicializa el catálogo de videos
-    """
-    return controller.initCatalog()
-
-
-def loadData(catalog):
-    """
-    Carga los datos de los videos
-    """
-    return controller.loadData(catalog)
-
-
 catalog = None
 
 def topNInput() -> int:
@@ -107,8 +92,8 @@ while True:
     printMenu()
     inputs = input('Seleccione una opción para continuar\n')
     if int(inputs[0]) == 1:
-        catalog = initCatalog()
-        loadStats = loadData(catalog)
+        catalog = controller.initCatalog()
+        loadStats = controller.loadData(catalog)
         print('Videos cargados: ' + str(lt.size(catalog['videos'])) + "\n")
         print("Categorías cargadas: ", mp.size(catalog["catVids"]))
         print("Tiempo de carga:", round(loadStats[0], 3), "[ms]")
