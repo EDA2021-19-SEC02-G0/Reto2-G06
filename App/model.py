@@ -55,6 +55,7 @@ def newCatalog(colisionMan: int, loadFactor: float):
     Returns:
         Catalogo vacío
     """
+
     if colisionMan == 0:
         mapType = "CHAINING"
     elif colisionMan == 1:
@@ -63,7 +64,7 @@ def newCatalog(colisionMan: int, loadFactor: float):
             raise Exception("Invalid loadfactor for Linear Probing Map")
     else:
         raise Exception("Invalid colision managment type (colisionMan) in model.newCatalog()")
-
+  
     catalog = {
         "videos": None,
         "catVids": None, #Mapa con <category, list> donde list es una lista de videos con la category
@@ -71,8 +72,8 @@ def newCatalog(colisionMan: int, loadFactor: float):
     }
 
     catalog["videos"] = lt.newList("ARRAY_LIST")
-    catalog["catVids"] = mp.newMap(32, maptype=mapType, loadfactor=loadFactor)
-    catalog["categories"] = mp.newMap(32, maptype=mapType, loadfactor=loadFactor)
+    catalog["catVids"] = mp.newMap(32, maptype=mapType, loadfactor=loadFactor )
+    catalog["categories"] = mp.newMap(32, maptype=mapType, loadfactor=loadFactor )
     
     return catalog        
 
