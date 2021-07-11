@@ -25,12 +25,15 @@
  """
 
 
+from random import uniform
+from sys import settrace
 import config as cf
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
 from DISClib.DataStructures import mapentry as me
 from DISClib.Algorithms.Sorting import mergesort as sa
 assert cf
+import pdb
 
 """
 Se define la estructura de un catálogo de videos. El catálogo tendrá dos listas, una para los videos, otra para las categorias de
@@ -67,13 +70,21 @@ def newCatalog(colisionMan: int, loadFactor: float):
   
     catalog = {
         "videos": None,
-        "catVids": None, #Mapa con <category, list> donde list es una lista de videos con la category
-        "categories": None #Tabla con <id, catName> que relaciona id de categoría con el nombre de la categoría
+        "categories": None,
+        "categories_id": None
     }
 
     catalog["videos"] = lt.newList("ARRAY_LIST")
-    catalog["catVids"] = mp.newMap(32, maptype=mapType, loadfactor=loadFactor )
-    catalog["categories"] = mp.newMap(32, maptype=mapType, loadfactor=loadFactor )
+    """
+    Crea un mapa para obtener una lista de videos en una categoría a partir
+    del nombre de la categoría
+    """
+    catalog["categories"] = mp.newMap(32, maptype=mapType, loadfactor=loadFactor)
+    """
+    Crea un mapa utilizado para obtener el nombre de la categoría a paritr del
+    id de esta.
+    """
+    catalog["categories_id"] = mp.newMap(32, maptype=mapType, loadfactor=loadFactor)
     
     return catalog        
 
@@ -83,28 +94,39 @@ def newCatalog(colisionMan: int, loadFactor: float):
 # -- Para cargar categorías
 def loadCategory(catalog, category):
     """
-    Añade una categoría a la lista de categorías.
+    Añade una categoría al mapa de categorías del catálogo creando
+    la estructura de categoría que contiene el nombre de la
+    categoría, el id, y una lista para incluir los videos
+    de dicha categoría.
+    Adicionalmente añade la pareja <llave, valor> <category id, category name>
+    al mapa categories_id del catálogo
+    Args:
+        catalog -- catálogo de videos
+        category: dict -- información de la categoría a agregar
     """
-    #Añade <id, catName> a la tabla que relaciona el id de la categoría
-    #con el nombre de esta
-    mp.put(catalog["categories"], int(category["id"]), category["name"].strip())
-    #Crea la estructura de datos para listar los videos
-    #que aparecen en una categoría
-    mp.put(catalog["catVids"], category["name"].strip(), lt.newList())
+    catName     = category["name"].strip().lower()
+    catId       = int(category["id"])
+    # Añade al mapa catalog["categories"] (crea una lista vacía para agregar
+    # videos posteriormente)
+    mp.put(catalog["categories"], catName, lt.newList())
+    #Añade al mapa catalog["categories_id"]
+    mp.put(catalog["categories_id"], catId, catName)
     
 
 # -- Para añadir videos
 def addVideo(catalog, video):
     """
-    Añade un video a la lista de videos.
+    Añade un video a la lista de videos, y a la lista de videos
+    de la categoría a la que pertenece.
+    Args:
+        catalog -- catálogo de videos
+        video: dict -- información del video a agregar
     """
     lt.addLast(catalog["videos"], video)
     #Obtener nombre de la categoría del video
-    catEntry = mp.get(catalog["categories"], int(video["category_id"]))
-    catName = me.getValue(catEntry)
+    catName = getMapValue(catalog["categories_id"], int(video["category_id"]))
     #Añade el libro a la lista de libros en la categoría
-    catVidsEntry = mp.get(catalog["catVids"], catName)
-    catVids = me.getValue(catVidsEntry)
+    catVids = getMapValue(catalog["categories"], catName)
     lt.addLast(catVids, video) 
 
 # Funciones para creacion de datos
@@ -181,3 +203,24 @@ def srtVidsByViews(lst):
         Tad Lista con los videos ordenados.
     """
     return sa.sort(lst, cmpVidsByViews)
+
+
+# ================================
+#       Otras funciones
+# ================================
+def getMapValue(map, key):
+    """
+    Devuelve el valor en un mapa que corresponde a la llave pasada
+    por parámetro
+
+    Returns:
+        El valor correspondiente a la llave pasada o None
+        si no encuentra la llave especificada
+    """
+    valueEntry = mp.get(map, key)
+
+    if valueEntry is None:
+        raise Exception("Llave " + str(key), "no encontrada en map")
+    value = me.getValue(valueEntry)
+    
+    return value
