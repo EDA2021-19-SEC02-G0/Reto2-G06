@@ -183,7 +183,7 @@ def topVidsCatCountry(catalog, catName: str, countryName: str, topN: int):
     # Get list with countryVids
     countryVids = getMapValue(catalog["countries"], countryName)
     # Get list with catVids
-    catVids = getMapValue(catalog["countries"], countryName)
+    catVids = getMapValue(catalog["categories"], catName)
 
     # Check if keys exist
     if countryVids is None or catVids is None:
@@ -199,7 +199,7 @@ def topVidsCatCountry(catalog, catName: str, countryName: str, topN: int):
         #Itera por los videos de countryVids
         for video in lt.iterator(countryVids):
             # Get video's catName
-            vidCatName = mp.get(catalog["categories_id"], int(video["category_id"])).strip().lower()
+            vidCatName = getMapValue(catalog["categories_id"], int(video["category_id"])).strip().lower()
             if vidCatName == catName:
                 lt.addLast(topVids, video)
     
