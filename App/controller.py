@@ -35,7 +35,20 @@ El controlador se encarga de mediar entre la vista y el modelo.
 
 def initCatalog(colisionMan = 0, loadFactor = 1):
     """
-    Llama la funcion de inicializacion del catalogo del modelo.
+    Inicializa el catálogo de videos. Crea una lista vacia para guardar
+    todos los videos, adicionalmente, crea una lista vacia para las categorías,
+    una lista vacía para las asociaciones video - categoría y una lista vacía
+    para los paises. Retorna el catálogo inicializado. Dependiendo el type pasado inicializa
+    las listas con ARRAY_LIST o SINGLE_LINKED
+
+    Args:
+        colisionMan: int -- Define el manejo de colisiones para los tad MAP del catalogo
+            - 0 para Separate Chaining
+            - 1 para Linear Probing
+        loadFactor: float -- Factor de carga para los tad MAP del catalogo
+    
+    Returns:
+        Catalogo vacío
     """
     catalog = model.newCatalog(colisionMan, loadFactor)
     return catalog
@@ -48,38 +61,37 @@ def loadData(catalog):
     Carga los datos de los archivos y cargar los datos en la
     estructura de datos
     """
-    delta_time = -1.0
-    delta_memory = -1.0
+    __loadCategories(catalog)
+    __loadVideos(catalog)
 
-    tracemalloc.start()
-    start_time = getTime()
-    start_memory = getMemory()
 
-    loadCategories(catalog)
-    loadVideos(catalog)
+def __loadCategories(catalog):
+    """
+    Lee el archivo category-id.csv y carga las categorías en el catálogo
 
-    stop_memory = getMemory()
-    stop_time = getTime()
-    tracemalloc.stop()
-
-    delta_time = stop_time - start_time
-    delta_memory = deltaMemory(start_memory, stop_memory)
-
-    return delta_time, delta_memory
-
-def loadCategories(catalog):
+    Args:
+        Catalog -- catalogo de videos
+    """
     catfile = cf.data_dir + "category-id.csv"
     input_file = csv.DictReader(open(catfile,encoding='utf-8'), delimiter="\t")
     for category in input_file:
         model.loadCategory(catalog, category)
 
-def loadVideos(catalog):
+
+def __loadVideos(catalog):
+    """
+    Lee el archivo videos-large.csv y carga los videos al catálogo
+
+    Args:
+        Catalog -- catalogo de videos
+    """
     # TODO Cambiar a videos-large.csv para producción
     vidsfile = cf.data_dir + "videos-large.csv"
     input_file = csv.DictReader(open(vidsfile,encoding='utf-8'))
     for video in input_file:
         model.addVideo(catalog, video)
         model.addCountry(catalog,video)
+
 
 # Funciones de ordenamiento
 def srtVidsByLikes(catalog, srtType):
@@ -121,41 +133,3 @@ def mostCommentedVids(catalog, country, tagName, topN):
 
 def trendingVidCountry(catalog, country):
     return model.trendingVidCountry(catalog, country)
-
-#TODO Eliminar función para Reto (solo se utiliza para labs)
-def topVidsCat(catalog, catName: str, topN: int):
-    return model.topVidsCat(catalog, catName, topN)
-
-# =====================================
-# Funciones para medir tiempo y memoria
-# =====================================
-
-
-def getTime():
-    """
-    devuelve el instante tiempo de procesamiento en milisegundos
-    """
-    return float(time.perf_counter()*1000)
-
-
-def getMemory():
-    """
-    toma una muestra de la memoria alocada en instante de tiempo
-    """
-    return tracemalloc.take_snapshot()
-
-
-def deltaMemory(start_memory, stop_memory):
-    """
-    calcula la diferencia en memoria alocada del programa entre dos
-    instantes de tiempo y devuelve el resultado en bytes (ej.: 2100.0 B)
-    """
-    memory_diff = stop_memory.compare_to(start_memory, "filename")
-    delta_memory = 0.0
-
-    # suma de las diferencias en uso de memoria
-    for stat in memory_diff:
-        delta_memory = delta_memory + stat.size_diff
-    # de Byte -> kByte
-    delta_memory = delta_memory/1024.0
-    return delta_memory
