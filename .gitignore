@@ -144,5 +144,5 @@ dmypy.json
 
 .vim
 
-#Pruebas lab7
-App/pruebas.py
+#Excel datos
+Docs/datos.*
