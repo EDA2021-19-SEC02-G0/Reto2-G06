@@ -93,7 +93,7 @@ Main program
 catalog = None
 print("Bienvenido")
 print("A continuación se cargará la información en el catálogo")
-init = input("ENTER para continuar o 0 para salir")
+init = input("ENTER para continuar o 0 para salir: ")
 #Termina el programa si el usuario selecciona 0
 if init == "0":
     sys.exit(0)

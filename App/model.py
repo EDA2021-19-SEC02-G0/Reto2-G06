@@ -24,15 +24,12 @@
  * Dario Correal - Version inicial
  """
 
-
-from DISClib.DataStructures.arraylist import addLast, newList
 import config as cf
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
 from DISClib.DataStructures import mapentry as me
 from DISClib.Algorithms.Sorting import mergesort as sa
 assert cf
-import pdb
 
 """
 Se define la estructura de un catálogo de videos. El catálogo tendrá dos listas, una para los videos, otra para las categorias de
@@ -314,28 +311,39 @@ def srtVidsByViews(lst):
     return sa.sort(lst, cmpVidsByViews)
 
 
-def trendingVidCountry(catalog, countryName):
-   
-    mapcountry = catalog["countries"]
-    countryvids = getMapValue(mapcountry, countryName)
-    if countryvids is None:
-        return False
-    hiPerVids = lt.newList("ARRAY_LIST", cmpVideos)
+def trendingVidCountry(catalog, countryName: str):
+    """
+    Devuelve el video que más días ha sido trending en un país específico
+    Solo cuenta las ocurrencias de dias en trending de aquellos videos que
+    tienen una persepción altamente positiva (ratio likes / dislikes > 10)
 
-    for video in lt.iterator(countryvids):
+    Args:
+        catalog -- catálogo de videos
+        countryName: str -- Nombre del país para filtrar
+    
+    Returns: dict | Bool
+        Diccionario con informaicón del video o False si no se encuentra
+        ningún video que cumpla con los filtros.        
+    """
+    countryVids = getMapValue(catalog["countries"], countryName.strip().lower())
+    if countryVids is None:
+        return False
+    #Crea mapa para almacenar videos que cumplen con los filtros
+    hiPerVids = mp.newMap(100000, maptype="CHAINING", loadfactor=2) #TODO determinar tipo de mapa y factor de carga
+
+    for video in lt.iterator(countryVids):
         #Evitar división por 0
         if (int(video["dislikes"]) == 0) and (int(video["likes"]) == 0):
             likeDislikeRatio = 0
         elif int(video["dislikes"]) == 0:
-            likeDislikeRatio = "Infinite"
+            likeDislikeRatio = "Infinito"
         else:
             likeDislikeRatio = int(video["likes"]) / int(video["dislikes"])
         #Revisar si el video cumple los criterios
-        if (str(likeDislikeRatio) == "Infinite") or (likeDislikeRatio > 10):
-            #Revisar si el video ya existe en trendVids
-            hiPerVidPos = lt.isPresent(hiPerVids, video["title"])
-            if hiPerVidPos > 0:
-                hiPerVid = lt.getElement(hiPerVids, hiPerVidPos)
+        if (str(likeDislikeRatio) == "Infinito") or (likeDislikeRatio > 10):
+            #Revisar si el video ya existe en hiPerVids
+            hiPerVid = getMapValue(hiPerVids, video["title"])
+            if hiPerVid is not None:
                 #Añade 1 a la cuenta de días que ha aparecido el video
                 hiPerVid["day_count"] += 1
             else:
@@ -346,13 +354,18 @@ def trendingVidCountry(catalog, countryName):
                     "ratio_likes_dislikes": likeDislikeRatio,
                     "day_count": 1
                     }
-                lt.addLast(hiPerVids, hiPerVid)
+                mp.put(hiPerVids, video["title"], hiPerVid)
                 
-     #Revisa si hay videos que cumplen con la condición
+    #Convierte el mapa en una lista de los valores
+    hiPerVids = mp.valueSet(hiPerVids)
+
+    # Revisa si hay videos que cumplen con la condición
     if lt.isEmpty(hiPerVids):
         return False
+    
     #Ordena los hiPerVids
     srtVidsByTrendDays(hiPerVids)
+
     #Retorna el video que más días ha sido trend
     return lt.firstElement(hiPerVids)
            
@@ -384,9 +397,12 @@ def srtVidsByTrendDays(lst):
         lst -- lista con elementos video que tienen la llave day_count
     """
     return sa.sort(lst, cmpVideosByTrendDays)
+
+
 # ================================
 #       Otras funciones
 # ================================
+
 def getMapValue(map, key):
     """
     Devuelve el valor en un mapa que corresponde a la llave pasada
