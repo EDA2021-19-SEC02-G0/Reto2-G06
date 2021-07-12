@@ -79,6 +79,7 @@ def loadVideos(catalog):
     input_file = csv.DictReader(open(vidsfile,encoding='utf-8'))
     for video in input_file:
         model.addVideo(catalog, video)
+        model.addCountry(catalog,video)
 
 # Funciones de ordenamiento
 def srtVidsByLikes(catalog, srtType):

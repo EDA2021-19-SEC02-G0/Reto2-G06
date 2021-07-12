@@ -41,6 +41,7 @@ def printMenu():
     print("Bienvenido")
     print("1- Cargar información en el catálogo")
     print("2- N videos con mas views de una categoría")
+    print("3- Vídeo que más días ha sido trending en un país")
     print("0- Salir")
 
 
@@ -149,8 +150,10 @@ while True:
         countryName = input("Buscar en país: ")
         print("Cargando. Esta operación puede tardar")
         video= controller.trendingVidCountry(catalog, countryName)
-        if video == False:
+
+        if video == False :
             print("Ningún video cumple con los parámetros de busqueda")
+        
         else:
             print("\nEl video del pais", countryName, "con persepción positiva es\n")
             print("Titulo:", video["title"])
@@ -159,6 +162,7 @@ while True:
             print("Likes/dislikes:", round(video["ratio_likes_dislikes"], 2))
             print("Días en trend:", video["day_count"], "\n")
             input("ENTER para continuar")
+
     elif int(inputs[0]) == 4:
         #REQ3
         #User category input
