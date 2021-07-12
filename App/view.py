@@ -101,6 +101,7 @@ if init == "0":
 #Carga el catálogo
 catalog = controller.initCatalog() #TODO seleccionar manejo de coliciones y factor de carga
 controller.loadData(catalog)
+#TODO mostrar información del primer video cargado y de categorías.
 
 # Menú principal
 while True:
