@@ -117,7 +117,7 @@ def trendingVidCat(catalog, catPos):
     return model.trendingVidCat(catalog, catPos)
 
 
-def topVidsCatCountry(catalog, catName, countryName, topN):
+def topVidsCatCountry(catalog, catName: str, countryName: str, topN: int):
     """
     Devuelve una lista con el top n videos con mas likes en un determinado
     país y de una categoría específica
@@ -128,7 +128,7 @@ def topVidsCatCountry(catalog, catName, countryName, topN):
         countryName: str -- Nombre del país para filtrar
         topN: int -- Número de videos a listar
     
-    Returns:
+    Returns: TAD lista | bool
         TAD lista el top n videos o Falso si no encuentra videos que coincidan
         con los filtros
     """

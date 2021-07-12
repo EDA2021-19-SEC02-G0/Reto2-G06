@@ -113,7 +113,7 @@ def loadCategory(catalog, category):
     catId       = int(category["id"])
     # Añade al mapa catalog["categories"] (crea una lista vacía para agregar
     # videos posteriormente)
-    mp.put(catalog["categories"], catName, lt.newList())
+    mp.put(catalog["categories"], catName, lt.newList("ARRAY_LIST"))
     #Añade al mapa catalog["categories_id"]
     mp.put(catalog["categories_id"], catId, catName)
     
@@ -152,7 +152,7 @@ def addCountryVideo(catalog, video):
     if countryVids is not None:
         lt.addLast(countryVids, video)
     else:
-        mp.put(catalog["countries"], countryName, lt.newList())
+        mp.put(catalog["countries"], countryName, lt.newList("ARRAY_LIST"))
         countryVids = getMapValue(catalog["countries"], countryName)
         lt.addLast(countryVids, video)
 
@@ -172,11 +172,46 @@ def topVidsCatCountry(catalog, catName: str, countryName: str, topN: int):
         countryName: str -- Nombre del país para filtrar
         topN: int -- Número de videos a listar
     
-    Returns:
+    Returns: TAD lista | bool
         TAD lista el top n videos o Falso si no encuentra videos que coincidan
-        con los filtros
+        con los filtros o FALSE si no se encutentra ningún video con las
+        filtros
     """
+    catName = catName.strip().lower()
+    countryName = countryName.lower().strip()
+    topVids = lt.newList("ARRAY_LIST")
+    # Get list with countryVids
+    countryVids = getMapValue(catalog["countries"], countryName)
+    # Get list with catVids
+    catVids = getMapValue(catalog["countries"], countryName)
 
+    # Check if keys exist
+    if countryVids is None or catVids is None:
+        return False
+    
+    #Revisa que lista es mas pequeña para ver por cual hace el recorrido
+    if lt.size(catVids) <= lt.size(countryVids):
+        #Itera por videos en catVids
+        for video in lt.iterator(catVids):
+            if video["country"].strip().lower() == countryName:
+                lt.addLast(topVids, video)
+    else:
+        #Itera por los videos de countryVids
+        for video in lt.iterator(countryVids):
+            # Get video's catName
+            vidCatName = mp.get(catalog["categories_id"], int(video["category_id"])).strip().lower()
+            if vidCatName == catName:
+                lt.addLast(topVids, video)
+    
+    # Checks if topVids is empty
+    if lt.isEmpty(topVids):
+        return False
+    
+    #Sorts vids by likes
+    srtVidsByLikes(topVids)
+
+    #Retorna los n videos a listar
+    return lt.subList(topVids, 1, topN)
 
 
 def topVidsCat(catalog, catName: str, topN: int):
@@ -233,7 +268,35 @@ def cmpVidsByViews(video1, video2):
     return int(video1["views"]) > int(video2["views"])
 
 
+def cmpVideosByLikes(video1, video2) -> bool:
+    """
+    Devuelve verdadero (True) si los likes de video1 son mayores que los del video2
+    Args:
+    video1: informacion del primer video que incluye su valor 'likes'
+    video2: informacion del segundo video que incluye su valor 'likes'
+    """
+    return int(video1["likes"]) > int(video2["likes"])
+
+
 # Funciones de ordenamiento
+
+def srtVidsByLikes(lst):
+    """
+    Ordena los videos del catálogo por likes. La acendencia o
+    decendencia del orden depende de la función de comparación
+    cmpVideosByLikes(). Utiliza la función de ordenamiento importada
+    como "sa"
+
+    Args:
+        lst -- Lista con elementos video a ordenar
+    
+    Returns:
+        Tad Lista con los videos ordenados.
+    """
+    sortedList = sa.sort(lst, cmpVideosByLikes)
+
+    return sortedList
+
 
 def srtVidsByViews(lst):
     """

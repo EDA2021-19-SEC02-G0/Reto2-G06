@@ -92,9 +92,8 @@ Main program
 #Carga los datos al iniciar el programa
 catalog = None
 print("Bienvenido")
-print("A continuación se cargará la información en el catálogo",
-"ENTER para continuar o 0 para salir")
-init = input("> ")
+print("A continuación se cargará la información en el catálogo")
+init = input("ENTER para continuar o 0 para salir")
 #Termina el programa si el usuario selecciona 0
 if init == "0":
     sys.exit(0)
@@ -115,7 +114,38 @@ while True:
         topN        = topNInput()
         #Program
         topVids = controller.topVidsCatCountry(catalog, catName, countryName, topN)
-        #TODO Output
+        # Output
+        if topVids == False:
+            print("Ningún video cumple con los filtros de busqueda")
+        else:
+            printRow([
+                [15, 40, 20, 25, 10, 10, 10],
+                [
+                    "Trending date",
+                    "Title",
+                    "Channel title",
+                    "Publish time",
+                    "Views",
+                    "likes",
+                    "dislikes"
+                ]
+            ])
+            for video in lt.iterator(topVids):
+                printRow([
+                [15, 40, 20, 25, 10, 10, 10],
+                [
+                    video["trending_date"],
+                    video["title"],
+                    video["channel_title"],
+                    video["publish_time"],
+                    video["views"],
+                    video["likes"],
+                    video["dislikes"]
+                ]
+            ])
+            if topVids["size"] < topN:
+                print("Solo", topVids["size"], "cumplen las condiciones de búsqueda")
+        input("\nENTRE para continuar")
 
     elif int(inputs[0]) == 2:
         #REQ 2
