@@ -23,8 +23,6 @@
 import config as cf
 import model
 import csv
-import time
-import tracemalloc
 
 
 """

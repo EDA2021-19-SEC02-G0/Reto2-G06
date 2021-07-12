@@ -27,6 +27,7 @@ assert cf
 from DISClib.ADT import list as lt #TAD Lista
 from DISClib.ADT import map as mp #TAD map
 from DISClib.DataStructures import mapentry as me #TAD map
+from time import process_time
 
 
 """
@@ -35,6 +36,18 @@ Presenta el menu de opciones y por cada seleccion
 se hace la solicitud al controlador para ejecutar la
 operación solicitada
 """
+def elapsedTime(start_time: float) -> float:
+    """
+    Retorna el tiempo de proceso transcurrido desde el
+    start_time en segundos, con dos cifras decimales
+
+    Args:
+        start_time: float -- Tiempo de inicio, en milisegundos
+    
+    Returns:
+        Tiempo transcurrido de proceso en segundos
+    """
+    return round((process_time() - start_time), 2)
 
 def printMenu():
     #TODO corregir menú a requerimientos
@@ -86,92 +99,121 @@ def topNInput() -> int:
     return topN
 
 
+def initProgram() -> None:
+    #Carga los datos al iniciar el programa
+    print("Bienvenido")
+    print("A continuación se cargará la información en el catálogo")
+    init = input("ENTER para continuar o 0 para salir: ")
+    #Termina el programa si el usuario selecciona 0
+    if init == "0":
+        sys.exit(0)
+    #Carga el catálogo
+    print("Cargando...")
+    start_time = process_time()
+    catalog = controller.initCatalog() #TODO seleccionar manejo de coliciones y factor de carga
+    controller.loadData(catalog)
+    elapsed_time = elapsedTime(start_time)
+
+    #Información de catalogo cargado
+    print(lt.size(catalog["videos"]), "videos cargados en", elapsed_time, "segundos")
+    print("Categorías cargadas")
+    catIds = mp.keySet(catalog["categories_id"])
+    for catId in lt.iterator(catIds):
+        catEntry = mp.get(catalog["categories_id"], catId)
+        catName = me.getValue(catEntry)
+        printRow([
+            [4, 40],
+            [catId, catName]
+        ])
+    input("ENTER para continuar \n")
+    mainMenu(catalog)
+
+
+def mainMenu(catalog):
+    # Menú principal
+    while True:
+        printMenu()
+        inputs = input('Seleccione una opción para continuar\n> ')
+        if int(inputs[0]) == 1:
+            #REQ 1
+            #User input
+            catName     = input("Nombre de la categoría: ").lower().strip()
+            countryName = input("País: ").lower().strip()
+            topN        = topNInput()
+            #Program
+            start_time = process_time()
+            topVids = controller.topVidsCatCountry(catalog, catName, countryName, topN)
+            elapsed_time = elapsedTime(start_time)
+            # Output
+            if topVids == False:
+                print("Ningún video cumple con los filtros de busqueda")
+            else:
+                print("Proceso en", elapsed_time, "segundos")
+                printRow([
+                    [15, 40, 20, 25, 10, 10, 10],
+                    [
+                        "Trending date",
+                        "Title",
+                        "Channel title",
+                        "Publish time",
+                        "Views",
+                        "likes",
+                        "dislikes"
+                    ]
+                ])
+                for video in lt.iterator(topVids):
+                    printRow([
+                    [15, 40, 20, 25, 10, 10, 10],
+                    [
+                        video["trending_date"],
+                        video["title"],
+                        video["channel_title"],
+                        video["publish_time"],
+                        video["views"],
+                        video["likes"],
+                        video["dislikes"]
+                    ]
+                ])
+                if topVids["size"] < topN:
+                    print("Solo", topVids["size"], "cumplen las condiciones de búsqueda")
+            input("\nENTRE para continuar")
+
+        elif int(inputs[0]) == 2:
+            #REQ 2
+            #User input
+            countryName = input("Buscar en país: ").strip().lower()
+            print("Cargando. Esta operación puede tardar")
+            #Program
+            start_time = process_time()
+            video= controller.trendingVidCountry(catalog, countryName)
+            elapsed_time = elapsedTime(start_time)
+
+            if video == False :
+                print("Ningún video cumple con los parámetros de busqueda")
+            else:
+                print("Proceso en", elapsed_time, "segundos")
+                print("\nEl video del pais", countryName, "con persepción positiva es\n")
+                print("Titulo:", video["title"])
+                print("Canal:", video["channel_title"])
+                print("Pais:", video["country"])
+                print("Likes/dislikes:", round(video["ratio_likes_dislikes"], 2))
+                print("Días en trend:", video["day_count"], "\n")
+                input("ENTER para continuar")
+
+        elif int(inputs[0]) == 3:
+            #REQ 3
+            pass
+        elif int(inputs[0]) == 4:
+            #REQ 4
+            pass
+        else:
+            sys.exit(0)
+
+
+
 """
 Main program
 """
-#Carga los datos al iniciar el programa
-catalog = None
-print("Bienvenido")
-print("A continuación se cargará la información en el catálogo")
-init = input("ENTER para continuar o 0 para salir: ")
-#Termina el programa si el usuario selecciona 0
-if init == "0":
-    sys.exit(0)
-#Carga el catálogo
-catalog = controller.initCatalog() #TODO seleccionar manejo de coliciones y factor de carga
-controller.loadData(catalog)
-#TODO mostrar información del primer video cargado y de categorías.
+initProgram()
 
-# Menú principal
-while True:
-    printMenu()
-    inputs = input('Seleccione una opción para continuar\n')
-    if int(inputs[0]) == 1:
-        #REQ 1
-        #User input
-        catName     = input("Nombre de la categoría: ").lower().strip()
-        countryName = input("País: ").lower().strip()
-        topN        = topNInput()
-        #Program
-        topVids = controller.topVidsCatCountry(catalog, catName, countryName, topN)
-        # Output
-        if topVids == False:
-            print("Ningún video cumple con los filtros de busqueda")
-        else:
-            printRow([
-                [15, 40, 20, 25, 10, 10, 10],
-                [
-                    "Trending date",
-                    "Title",
-                    "Channel title",
-                    "Publish time",
-                    "Views",
-                    "likes",
-                    "dislikes"
-                ]
-            ])
-            for video in lt.iterator(topVids):
-                printRow([
-                [15, 40, 20, 25, 10, 10, 10],
-                [
-                    video["trending_date"],
-                    video["title"],
-                    video["channel_title"],
-                    video["publish_time"],
-                    video["views"],
-                    video["likes"],
-                    video["dislikes"]
-                ]
-            ])
-            if topVids["size"] < topN:
-                print("Solo", topVids["size"], "cumplen las condiciones de búsqueda")
-        input("\nENTRE para continuar")
-
-    elif int(inputs[0]) == 2:
-        #REQ 2
-        #Input del usuario
-        countryName = input("Buscar en país: ")
-        print("Cargando. Esta operación puede tardar")
-        video= controller.trendingVidCountry(catalog, countryName)
-
-        if video == False :
-            print("Ningún video cumple con los parámetros de busqueda")
-        
-        else:
-            print("\nEl video del pais", countryName, "con persepción positiva es\n")
-            print("Titulo:", video["title"])
-            print("Canal:", video["channel_title"])
-            print("Pais:", video["country"])
-            print("Likes/dislikes:", round(video["ratio_likes_dislikes"], 2))
-            print("Días en trend:", video["day_count"], "\n")
-            input("ENTER para continuar")
-
-    elif int(inputs[0]) == 3:
-        #REQ 3
-        pass
-    elif int(inputs[0]) == 4:
-        #REQ 4
-        pass
-    else:
-        sys.exit(0)
 
