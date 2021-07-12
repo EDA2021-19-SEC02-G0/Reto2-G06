@@ -101,18 +101,11 @@ def srtVidsByLikes(catalog, srtType):
 
 # Funciones de consulta sobre el catálogo
 
-def catPos(catalog, catName):
-    """
-    Llama a la función catPos del model.py
-    """
-    return model.catPos(catalog, catName)
-
-
-def trendingVidCat(catalog, catPos):
+def trendingVidCat(catalog, catName: str):
     """
     Llama a la función model.trendingVidCat()
     """
-    return model.trendingVidCat(catalog, catPos)
+    return model.trendingVidCat(catalog, catName)
 
 
 def topVidsCatCountry(catalog, catName: str, countryName: str, topN: int):

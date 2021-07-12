@@ -270,6 +270,66 @@ def trendingVidCountry(catalog, countryName: str):
     return lt.firstElement(hiPerVids)
 
 
+def trendingVidCat(catalog, catName: str):
+    """
+    Devuelve el video que más días ha sido trending en un país específico
+    Solo cuenta las ocurrencias de dias en trending de aquellos videos que
+    tienen una persepción altamente positiva (ratio likes / dislikes > 20)
+
+    Args:
+        catalog -- catálogo de videos
+        catName: str -- Nombre de la categoría para filtrar
+    
+    Returns: dict | Bool
+        Diccionario con informaicón del video o False si no se encuentra
+        ningún video que cumpla con los filtros.
+    """
+    catVids = getMapValue(catalog["categories"], catName.strip().lower())
+    if catVids is None:
+        return False
+    #Crea mapa para almacenar videos que cumplen con los filtros
+    hiPerVids = mp.newMap(100000, maptype="CHAINING", loadfactor=2) #TODO determinar tipo de mapa y factor de carga
+
+    for video in lt.iterator(catVids):
+        #Evitar división por 0
+        if (int(video["dislikes"]) == 0) and (int(video["likes"]) == 0):
+            likeDislikeRatio = 0
+        elif int(video["dislikes"]) == 0:
+            likeDislikeRatio = "Infinito"
+        else:
+            likeDislikeRatio = int(video["likes"]) / int(video["dislikes"])
+        #Revisar si el video cumple los criterios
+        if (str(likeDislikeRatio) == "Infinito") or (likeDislikeRatio > 20):
+            #Revisar si el video ya existe en hiPerVids
+            hiPerVid = getMapValue(hiPerVids, video["title"])
+            if hiPerVid is not None:
+                #Añade 1 a la cuenta de días que ha aparecido el video
+                hiPerVid["day_count"] += 1
+            else:
+                hiPerVid = {
+                    "title": video["title"],
+                    "channel_title": video["channel_title"],
+                    "category_id": video["category_id"],
+                    "ratio_likes_dislikes": likeDislikeRatio,
+                    "day_count": 1
+                    }
+                mp.put(hiPerVids, video["title"], hiPerVid)
+                
+    #Convierte el mapa en una lista de los valores
+    hiPerVids = mp.valueSet(hiPerVids)
+
+    # Revisa si hay videos que cumplen con la condición
+    if lt.isEmpty(hiPerVids):
+        return False
+    
+    #Ordena los hiPerVids
+    srtVidsByTrendDays(hiPerVids)
+
+    #Retorna el video que más días ha sido trend
+    return lt.firstElement(hiPerVids)
+
+
+
 # Funciones utilizadas para comparar elementos dentro de una lista
 
 def compareCategory(catName,cat):

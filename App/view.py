@@ -132,6 +132,7 @@ def initProgram() -> None:
 def mainMenu(catalog):
     # Menú principal
     while True:
+        print("")
         printMenu()
         inputs = input('Seleccione una opción para continuar\n> ')
         if int(inputs[0]) == 1:
@@ -202,7 +203,26 @@ def mainMenu(catalog):
 
         elif int(inputs[0]) == 3:
             #REQ 3
-            pass
+            #User input
+            catName = input("Buscar en categoría: ").strip().lower()
+            print("Cargando. Esta operación puede tardar")
+            #Program
+            start_time = process_time()
+            video= controller.trendingVidCat(catalog, catName)
+            elapsed_time = elapsedTime(start_time)
+
+            if video == False :
+                print("Ningún video cumple con los parámetros de busqueda")
+            else:
+                print("Proceso en", elapsed_time, "segundos")
+                print("\nEl video de la categoría", catName, "con persepción positiva es\n")
+                print("Titulo:", video["title"])
+                print("Canal:", video["channel_title"])
+                print("Category Id:", video["category_id"])
+                print("Likes/dislikes:", round(video["ratio_likes_dislikes"], 2))
+                print("Días en trend:", video["day_count"], "\n")
+                input("ENTER para continuar")
+
         elif int(inputs[0]) == 4:
             #REQ 4
             pass
