@@ -71,7 +71,8 @@ def newCatalog(colisionMan: int, loadFactor: float):
     catalog = {
         "videos": None,
         "categories": None,
-        "categories_id": None
+        "categories_id": None,
+        "countries": None
     }
 
     catalog["videos"] = lt.newList("ARRAY_LIST")
@@ -85,6 +86,11 @@ def newCatalog(colisionMan: int, loadFactor: float):
     id de esta.
     """
     catalog["categories_id"] = mp.newMap(32, maptype=mapType, loadfactor=loadFactor)
+    """
+    Crea un mapa utilizado para obtener una lista de videos de un país dado el nombre
+    de este
+    """
+    catalog["countries"] = mp.newMap(20, maptype=mapType, loadfactor=loadFactor) #TODO corregir tamaño del map
     
     return catalog        
 
@@ -125,9 +131,32 @@ def addVideo(catalog, video):
     lt.addLast(catalog["videos"], video)
     #Obtener nombre de la categoría del video
     catName = getMapValue(catalog["categories_id"], int(video["category_id"]))
-    #Añade el libro a la lista de libros en la categoría
+    #Añade el video a la lista de videos en la categoría
     catVids = getMapValue(catalog["categories"], catName)
     lt.addLast(catVids, video) 
+    #Añade el video a la lista de videos del país
+    addCountryVideo(catalog, video)
+
+
+def addCountryVideo(catalog, video):
+    """
+    Añade un video al map de videos de un país específico (catalog["countries"])
+    Si no existe el país crea la llave-valor en el mapa, y añade el video
+
+    Args:
+        catalog -- catálogo de videos
+        video -- video con llave "country"
+    """
+    countryName = video["country"].strip().lower()
+    countryVids = getMapValue(catalog["countries"], countryName)
+    #Revisa si ya se añadió la llave
+    if countryVids is not None:
+        lt.addLast(countryVids, video)
+    else:
+        mp.put(catalog["countries"], countryName, lt.newList)
+        countryVids = getMapValue(catalog["countries"], countryName)
+        lt.addLast(countryVids, video)
+
 
 # Funciones para creacion de datos
 
@@ -218,9 +247,8 @@ def getMapValue(map, key):
         si no encuentra la llave especificada
     """
     valueEntry = mp.get(map, key)
-
     if valueEntry is None:
-        raise Exception("Llave " + str(key), "no encontrada en map")
+        return None
     value = me.getValue(valueEntry)
     
     return value
