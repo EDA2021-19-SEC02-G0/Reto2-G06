@@ -161,6 +161,24 @@ def addCountryVideo(catalog, video):
 
 # Funciones de consulta
 
+def topVidsCatCountry(catalog, catName: str, countryName: str, topN: int):
+    """
+    Devuelve una lista con el top n videos con mas likes en un determinado
+    país y de una categoría específica
+
+    Args:
+        catalog -- catálogo de videos
+        catName: str -- Nombre de la categoría para filtrar
+        countryName: str -- Nombre del país para filtrar
+        topN: int -- Número de videos a listar
+    
+    Returns:
+        TAD lista el top n videos o Falso si no encuentra videos que coincidan
+        con los filtros
+    """
+
+
+
 def topVidsCat(catalog, catName: str, topN: int):
     """
     Retorna los n videos con mas vistas de una categoría.

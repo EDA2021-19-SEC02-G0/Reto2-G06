@@ -114,7 +114,8 @@ while True:
         countryName = input("País: ").lower().strip()
         topN        = topNInput()
         #Program
-        #topVids = controller.topVidsCatCountry()
+        topVids = controller.topVidsCatCountry(catalog, catName, countryName, topN)
+        #TODO Output
 
     elif int(inputs[0]) == 2:
         #REQ 2
