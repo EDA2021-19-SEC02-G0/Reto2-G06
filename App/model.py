@@ -86,7 +86,7 @@ def newCatalog(colisionMan: int, loadFactor: float):
     Crea un mapa utilizado para obtener una lista de videos de un país dado el nombre
     de este
     """
-    catalog["countries"] = mp.newMap(20, maptype=mapType, loadfactor=loadFactor) #TODO corregir tamaño del map
+    catalog["countries"] = mp.newMap(10, maptype=mapType, loadfactor=loadFactor)
     
     return catalog        
 
@@ -229,7 +229,7 @@ def trendingVidCountry(catalog, countryName: str):
     if countryVids is None:
         return False
     #Crea mapa para almacenar videos que cumplen con los filtros
-    hiPerVids = mp.newMap(100000, maptype="CHAINING", loadfactor=2) #TODO determinar tipo de mapa y factor de carga
+    hiPerVids = mp.newMap(100000, maptype="CHAINING", loadfactor=2)
 
     for video in lt.iterator(countryVids):
         #Evitar división por 0
@@ -288,7 +288,7 @@ def trendingVidCat(catalog, catName: str):
     if catVids is None:
         return False
     #Crea mapa para almacenar videos que cumplen con los filtros
-    hiPerVids = mp.newMap(100000, maptype="CHAINING", loadfactor=2) #TODO determinar tipo de mapa y factor de carga
+    hiPerVids = mp.newMap(100000, maptype="CHAINING", loadfactor=2)
 
     for video in lt.iterator(catVids):
         #Evitar división por 0

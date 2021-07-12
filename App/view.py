@@ -50,7 +50,6 @@ def elapsedTime(start_time: float) -> float:
     return round((process_time() - start_time), 2)
 
 def printMenu():
-    #TODO corregir menú a requerimientos
     print("Menú")
     print("1- N videos con mas views de un país y una categoría") #REQ 1
     print("2- Video más días en trending para un país") #REQ 2
@@ -110,7 +109,7 @@ def initProgram() -> None:
     #Carga el catálogo
     print("Cargando...")
     start_time = process_time()
-    catalog = controller.initCatalog() #TODO seleccionar manejo de coliciones y factor de carga
+    catalog = controller.initCatalog(0, 2)
     controller.loadData(catalog)
     elapsed_time = elapsedTime(start_time)
 
