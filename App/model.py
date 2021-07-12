@@ -25,8 +25,7 @@
  """
 
 
-from random import uniform
-from sys import settrace
+from DISClib.DataStructures.arraylist import addLast, newList
 import config as cf
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
@@ -234,6 +233,76 @@ def srtVidsByViews(lst):
     return sa.sort(lst, cmpVidsByViews)
 
 
+def trendingVidCountry(catalog, countryName):
+   
+    mapcountry = catalog["countries"]
+    countryvids = getMapValue(mapcountry, countryName)
+    if countryvids is None:
+        return False
+    hiPerVids = lt.newList("ARRAY_LIST", cmpVideos)
+
+    for video in lt.iterator(countryvids):
+        #Evitar división por 0
+        if (int(video["dislikes"]) == 0) and (int(video["likes"]) == 0):
+            likeDislikeRatio = 0
+        elif int(video["dislikes"]) == 0:
+            likeDislikeRatio = "Infinite"
+        else:
+            likeDislikeRatio = int(video["likes"]) / int(video["dislikes"])
+        #Revisar si el video cumple los criterios
+        if (str(likeDislikeRatio) == "Infinite") or (likeDislikeRatio > 10):
+            #Revisar si el video ya existe en trendVids
+            hiPerVidPos = lt.isPresent(hiPerVids, video["title"])
+            if hiPerVidPos > 0:
+                hiPerVid = lt.getElement(hiPerVids, hiPerVidPos)
+                #Añade 1 a la cuenta de días que ha aparecido el video
+                hiPerVid["day_count"] += 1
+            else:
+                hiPerVid = {
+                    "title": video["title"],
+                    "channel_title": video["channel_title"],
+                    "country": video["country"],
+                    "ratio_likes_dislikes": likeDislikeRatio,
+                    "day_count": 1
+                    }
+                lt.addLast(hiPerVids, hiPerVid)
+                
+     #Revisa si hay videos que cumplen con la condición
+    if lt.isEmpty(hiPerVids):
+        return False
+    #Ordena los hiPerVids
+    srtVidsByTrendDays(hiPerVids)
+    #Retorna el video que más días ha sido trend
+    return lt.firstElement(hiPerVids)
+           
+  
+
+def cmpVideosByTrendDays(video1, video2) -> bool:
+    """
+    Devuelve verdadero (True) si los días de tendencia del video 1 son MAYORES que los del video 2
+    CUIDADO: los elementos video1 y video2 no son elementos video del catalogo de videos
+    deben tener una llave "day_count": int. Ver función trendingVidCat()
+
+    Args:
+        video1: información del video 1 que incluye llave day_count
+        video2: información del video 2 que incluye llave day_count
+    """
+    return int(video1["day_count"]) > int(video2["day_count"])
+
+
+def srtVidsByTrendDays(lst):
+    """
+    Ordena los videos por días de trend. Retorna la lista ordenada
+    La acendencia o decendencia del ordenamiento depende de la
+    función cmpVideosByTrendDays().
+    ADVERTENCIA: los elementos video1 y video2 NO son elementos video del
+    catalogo de videos deben tener una llave "day_count": int.
+    Ver función trendingVidCat()
+
+    Args:
+        lst -- lista con elementos video que tienen la llave day_count
+    """
+    return sa.sort(lst, cmpVideosByTrendDays)
 # ================================
 #       Otras funciones
 # ================================

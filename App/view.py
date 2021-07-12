@@ -118,7 +118,23 @@ while True:
 
     elif int(inputs[0]) == 2:
         #REQ 2
-        pass
+        #Input del usuario
+        countryName = input("Buscar en país: ")
+        print("Cargando. Esta operación puede tardar")
+        video= controller.trendingVidCountry(catalog, countryName)
+
+        if video == False :
+            print("Ningún video cumple con los parámetros de busqueda")
+        
+        else:
+            print("\nEl video del pais", countryName, "con persepción positiva es\n")
+            print("Titulo:", video["title"])
+            print("Canal:", video["channel_title"])
+            print("Pais:", video["country"])
+            print("Likes/dislikes:", round(video["ratio_likes_dislikes"], 2))
+            print("Días en trend:", video["day_count"], "\n")
+            input("ENTER para continuar")
+
     elif int(inputs[0]) == 3:
         #REQ 3
         pass
