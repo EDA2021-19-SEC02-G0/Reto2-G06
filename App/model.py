@@ -153,7 +153,7 @@ def addCountryVideo(catalog, video):
     if countryVids is not None:
         lt.addLast(countryVids, video)
     else:
-        mp.put(catalog["countries"], countryName, lt.newList)
+        mp.put(catalog["countries"], countryName, lt.newList())
         countryVids = getMapValue(catalog["countries"], countryName)
         lt.addLast(countryVids, video)
 
