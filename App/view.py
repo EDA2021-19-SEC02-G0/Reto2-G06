@@ -209,7 +209,7 @@ def mainMenu(catalog):
             start_time = process_time()
             video= controller.trendingVidCat(catalog, catName)
             elapsed_time = elapsedTime(start_time)
-
+            #Output
             if video == False :
                 print("Ningún video cumple con los parámetros de busqueda")
             else:
@@ -224,7 +224,21 @@ def mainMenu(catalog):
 
         elif int(inputs[0]) == 4:
             #REQ 4
-            pass
+            #User input
+            tagName = input("Tag a buscar: ")
+            countryName = input("Buscar en país: ")
+            topN = topNInput()
+            #program
+            start_time = process_time()
+            mostComVids = controller.mostCommentedVids(catalog, countryName, tagName, topN)
+            elapsed_time = elapsedTime(start_time)
+            #Output
+            if mostComVids == False:
+                print("Ningún video cumple con los filtros de búsqueda")
+            else:
+                print("Proceso en", elapsed_time, "segundos")
+                #TODO output
+
         else:
             sys.exit(0)
 
