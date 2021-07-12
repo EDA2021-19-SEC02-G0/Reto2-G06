@@ -239,8 +239,8 @@ def trendingVidCountry(catalog, countryName):
     countryvids = getMapValue(mapcountry, countryName)
     if countryvids is None:
         return False
-    hiPerVids = mp.newMap(32, maptype='Chaining',loadfactor=0.5,comparefunction=cmpVideos)
-    
+    hiPerVids = lt.newList("ARRAY_LIST", cmpVideos)
+
     for video in lt.iterator(countryvids):
         #Evitar división por 0
         if (int(video["dislikes"]) == 0) and (int(video["likes"]) == 0):
@@ -252,9 +252,9 @@ def trendingVidCountry(catalog, countryName):
         #Revisar si el video cumple los criterios
         if (str(likeDislikeRatio) == "Infinite") or (likeDislikeRatio > 10):
             #Revisar si el video ya existe en trendVids
-            hiPerVidPos = mp.contains(hiPerVids, video["title"])
-            if hiPerVidPos == True:
-                hiPerVid = getMapValue(hiPerVids, video["title"])
+            hiPerVidPos = lt.isPresent(hiPerVids, video["title"])
+            if hiPerVidPos > 0:
+                hiPerVid = lt.getElement(hiPerVids, hiPerVidPos)
                 #Añade 1 a la cuenta de días que ha aparecido el video
                 hiPerVid["day_count"] += 1
             else:
@@ -265,16 +265,15 @@ def trendingVidCountry(catalog, countryName):
                     "ratio_likes_dislikes": likeDislikeRatio,
                     "day_count": 1
                     }
-                mp.put(hiPerVids,video["title"], hiPerVid)
+                lt.addLast(hiPerVids, hiPerVid)
                 
      #Revisa si hay videos que cumplen con la condición
-    trendingcatvidlist=mp.valueSet(hiPerVids)
-    if lt.isEmpty(trendingcatvidlist):
+    if lt.isEmpty(hiPerVids):
         return False
     #Ordena los hiPerVids
-    srtVidsByTrendDays(trendingcatvidlist)
+    srtVidsByTrendDays(hiPerVids)
     #Retorna el video que más días ha sido trend
-    return lt.firstElement(trendingcatvidlist)
+    return lt.firstElement(hiPerVids)
            
   
 
