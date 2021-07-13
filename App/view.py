@@ -19,8 +19,8 @@
  * You should have received a copy of the GNU General Public License
  * along withthis program.  If not, see <http://www.gnu.org/licenses/>.
  """
-
 import sys
+from typing import Any
 import config as cf
 import controller
 assert cf
@@ -36,18 +36,8 @@ Presenta el menu de opciones y por cada seleccion
 se hace la solicitud al controlador para ejecutar la
 operación solicitada
 """
-def elapsedTime(start_time: float) -> float:
-    """
-    Retorna el tiempo de proceso transcurrido desde el
-    start_time en segundos, con dos cifras decimales
-
-    Args:
-        start_time: float -- Tiempo de inicio, en milisegundos
-    
-    Returns:
-        Tiempo transcurrido de proceso en segundos
-    """
-    return round((process_time() - start_time), 2)
+#Desactiva el seguimiento de memoria para mejorar rendimiento
+controller.mtTrace.trace_memory = False
 
 def printMenu():
     print("Menú")
@@ -56,6 +46,10 @@ def printMenu():
     print("3- Video más días en trending para una categoría") #REQ 4
     print("4- Videos con más comentarios de país / tag") #REQ 4
     print("0- Salir")
+
+
+def printTrace(trace: dict[str, float], processDesc: str = "Proceso en") -> None:
+    controller.mtTrace.printTrace(trace, processDesc)
 
 
 def printRow(row: list) -> None:
@@ -108,23 +102,16 @@ def initProgram() -> None:
         sys.exit(0)
     #Carga el catálogo
     print("Cargando...")
-    start_time = process_time()
-    catalog = controller.initCatalog(0, 2)
-    controller.loadData(catalog)
-    elapsed_time = elapsedTime(start_time)
+    catalog, trace1 = controller.initCatalog(0, 2)
+    trace2 = controller.loadData(catalog)
+    trace1["time"] += trace2["time"]
+    if trace1["memory"] is not None:
+        trace1["memory"] += trace2["memory"]
 
     #Información de catalogo cargado
-    print(lt.size(catalog["videos"]), "videos cargados en", elapsed_time, "segundos")
-    print("Categorías cargadas")
-    catIds = mp.keySet(catalog["categories_id"])
-    for catId in lt.iterator(catIds):
-        catEntry = mp.get(catalog["categories_id"], catId)
-        catName = me.getValue(catEntry)
-        printRow([
-            [4, 40],
-            [catId, catName]
-        ])
-    input("ENTER para continuar \n")
+    printTrace(trace1,
+    str(lt.size(catalog["videos"])) + " videos cargados en")
+    input("ENTER para continuar ")
     mainMenu(catalog)
 
 
@@ -141,14 +128,12 @@ def mainMenu(catalog):
             countryName = input("País: ").lower().strip()
             topN        = topNInput()
             #Program
-            start_time = process_time()
-            topVids = controller.topVidsCatCountry(catalog, catName, countryName, topN)
-            elapsed_time = elapsedTime(start_time)
+            topVids, trace = controller.topVidsCatCountry(catalog, catName, countryName, topN)
             # Output
+            printTrace(trace)
             if topVids == False:
                 print("Ningún video cumple con los filtros de busqueda")
             else:
-                print("Proceso en", elapsed_time, "segundos")
                 printRow([
                     [15, 40, 20, 25, 10, 10, 10],
                     [
@@ -184,14 +169,12 @@ def mainMenu(catalog):
             countryName = input("Buscar en país: ").strip().lower()
             print("Cargando. Esta operación puede tardar")
             #Program
-            start_time = process_time()
-            video= controller.trendingVidCountry(catalog, countryName)
-            elapsed_time = elapsedTime(start_time)
-
+            video, trace = controller.trendingVidCountry(catalog, countryName)
+            #Output
+            printTrace(trace)
             if video == False :
                 print("Ningún video cumple con los parámetros de busqueda")
             else:
-                print("Proceso en", elapsed_time, "segundos")
                 print("\nEl video del pais", countryName, "con persepción positiva es\n")
                 print("Titulo:", video["title"])
                 print("Canal:", video["channel_title"])
@@ -206,14 +189,12 @@ def mainMenu(catalog):
             catName = input("Buscar en categoría: ").strip().lower()
             print("Cargando. Esta operación puede tardar")
             #Program
-            start_time = process_time()
-            video= controller.trendingVidCat(catalog, catName)
-            elapsed_time = elapsedTime(start_time)
+            video, trace = controller.trendingVidCat(catalog, catName)
             #Output
+            printTrace(trace)
             if video == False :
                 print("Ningún video cumple con los parámetros de busqueda")
             else:
-                print("Proceso en", elapsed_time, "segundos")
                 print("\nEl video de la categoría", catName, "con persepción positiva es\n")
                 print("Titulo:", video["title"])
                 print("Canal:", video["channel_title"])
@@ -229,11 +210,9 @@ def mainMenu(catalog):
             countryName = input("Buscar en país: ")
             topN = topNInput()
             #program
-            start_time = process_time()
-            mostComVids = controller.mostCommentedVids(catalog, countryName, tagName, topN)
-            elapsed_time = elapsedTime(start_time)
+            mostComVids, trace = controller.mostCommentedVids(catalog, countryName, tagName, topN)
             #Output
-            print("Proceso en", elapsed_time, "segundos")
+            printTrace(trace)
             if mostComVids == False:
                 print("Ningún video cumple con los filtros de búsqueda")
             else:
