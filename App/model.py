@@ -30,6 +30,7 @@ from DISClib.ADT import map as mp
 from DISClib.DataStructures import mapentry as me
 from DISClib.Algorithms.Sorting import mergesort as sa
 assert cf
+import re #Regular Expression
 
 """
 Se define la estructura de un catálogo de videos. El catálogo tendrá dos listas, una para los videos, otra para las categorias de
@@ -272,7 +273,7 @@ def trendingVidCountry(catalog, countryName: str):
 
 def trendingVidCat(catalog, catName: str):
     """
-    Devuelve el video que más días ha sido trending en un país específico
+    Devuelve el video que más días ha sido trending en una categoría específica
     Solo cuenta las ocurrencias de dias en trending de aquellos videos que
     tienen una persepción altamente positiva (ratio likes / dislikes > 20)
 
@@ -329,6 +330,60 @@ def trendingVidCat(catalog, catName: str):
     return lt.firstElement(hiPerVids)
 
 
+def mostCommentedVid(catalog, countryName: str, tagName: str, topN: int):
+    """
+    Devuelve una listas con los n videos diferentes con más
+    comentarios dado un país y un tag específico.
+
+    Args:
+        catalog -- catálogo de videos
+        countryName: str -- Nombre del país para filtrar
+        tagName: str -- nombre del tag para filtrar
+        topN: int -- número de videos a listar
+    
+    Returns: TAD lista | Bool
+        TAD lista con N videos diferentes más comentados o
+        False si no encuentra ningún video que cumpla los
+        filtros
+    """
+    countryVids = getMapValue(catalog["countries"], countryName.strip().lower())
+    #Si el país no existe, retorna False
+    if countryVids is None:
+        return False
+    
+    #RegEx para tags
+    tagRegEx = "(?i)\"" + tagName + "\""
+
+    difTagCountryVids = mp.newMap(372000, loadfactor=2)
+
+    for video in lt.iterator(countryVids):
+        difTagCountryVid = getMapValue(difTagCountryVids, video["title"])
+        #Si no está en la lista
+        if difTagCountryVid is None:
+            #Si contiene el tag
+            if re.search(tagRegEx, video["tags"]) is not None:
+                #Añade el video al mapa de videos diferentes que cumplen filtros
+                mp.put(difTagCountryVids, video["title"], video)
+
+        #Si sí está, actualiza la cantidad de comentarios
+        elif video["comment_count"] > difTagCountryVid["comment_count"]:
+            difTagCountryVid["comment_count"] = video["comment_count"]
+    
+    #Convierte el mapa de videos diferentes a una lista para ordenarla
+    difTagCountryVids = mp.valueSet(difTagCountryVids)
+
+    #Revisa si la lista está vacia
+    if lt.isEmpty(difTagCountryVids):
+        return False
+
+    #Ordena los videos por número de comentarios
+    srtVidsByComments(difTagCountryVids)
+
+    #Obtiene lo n primeros videos
+    difTagCountryVids = lt.subList(difTagCountryVids, 1, topN)
+
+    return difTagCountryVids
+            
 
 # Funciones utilizadas para comparar elementos dentro de una lista
 
@@ -373,6 +428,18 @@ def cmpVideosByLikes(video1, video2) -> bool:
     video2: informacion del segundo video que incluye su valor 'likes'
     """
     return int(video1["likes"]) > int(video2["likes"])
+
+
+def cmpVideosByComments(video1, video2) -> bool:
+    """
+    Devuleve verdadero (true) se el número de comentarios del video1 es MAYOR
+    al número de comentarios del video 2.
+
+    Args:
+        video1 -- información del video 1 que incluye llave comment_count
+        video2 -- información del video 2 que incluye llave comment_count
+    """
+    return int(video1["comment_count"]) > int(video2["comment_count"])
 
 
 # Funciones de ordenamiento
@@ -437,6 +504,20 @@ def srtVidsByTrendDays(lst):
         lst -- lista con elementos video que tienen la llave day_count
     """
     return sa.sort(lst, cmpVideosByTrendDays)
+
+
+def srtVidsByComments(lst):
+    """
+    Ordena los videos por número de comentarios. Retorna la lista ordenada.
+    La acendencia o decedencia del ordenamiento depende de la función
+    cmpVidsByComments(). Utiliza el algoritmo de ordenamiento importado
+    como "sa".
+
+    Args:
+        lst -- lista con elementos video que tienen la llave "comment_count"
+    """
+    return sa.sort(lst, cmpVideosByComments)
+
 
 
 # ================================

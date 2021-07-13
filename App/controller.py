@@ -103,7 +103,17 @@ def srtVidsByLikes(catalog, srtType):
 
 def trendingVidCat(catalog, catName: str):
     """
-    Llama a la función model.trendingVidCat()
+    Devuelve el video que más días ha sido trending en una categoría específica
+    Solo cuenta las ocurrencias de dias en trending de aquellos videos que
+    tienen una persepción altamente positiva (ratio likes / dislikes > 20)
+
+    Args:
+        catalog -- catálogo de videos
+        catName: str -- Nombre de la categoría para filtrar
+    
+    Returns: dict | Bool
+        Diccionario con informaicón del video o False si no se encuentra
+        ningún video que cumpla con los filtros.
     """
     return model.trendingVidCat(catalog, catName)
 
@@ -127,11 +137,11 @@ def topVidsCatCountry(catalog, catName: str, countryName: str, topN: int):
     topN)
 
 
-def mostCommentedVids(catalog, country, tagName, topN):
+def mostCommentedVids(catalog, countryName, tagName, topN):
     """
     Llama a la función model.mostCommentedVids()
     """
-    return model.mostCommentedVid(catalog, country, tagName, topN)
+    return model.mostCommentedVid(catalog, countryName, tagName, topN)
 
 def trendingVidCountry(catalog, country):
     return model.trendingVidCountry(catalog, country)

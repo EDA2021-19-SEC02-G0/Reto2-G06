@@ -233,11 +233,40 @@ def mainMenu(catalog):
             mostComVids = controller.mostCommentedVids(catalog, countryName, tagName, topN)
             elapsed_time = elapsedTime(start_time)
             #Output
+            print("Proceso en", elapsed_time, "segundos")
             if mostComVids == False:
                 print("Ningún video cumple con los filtros de búsqueda")
             else:
-                print("Proceso en", elapsed_time, "segundos")
-                #TODO output
+                if mostComVids["size"] < topN:
+                    print("Solo", mostComVids["size"], "videos cumplen las condiciones de búsqueda")
+                for video in lt.iterator(mostComVids):
+                    print("")
+                    printRow([
+                        [40, 20, 20, 10, 10, 10, 11],
+                        [
+                            "Title",
+                            "Channel title",
+                            "Publish time",
+                            "Views",
+                            "likes",
+                            "dislikes",
+                            "Comment cnt"
+                        ]
+                    ])
+                    printRow([
+                        [40, 20, 20, 10, 10, 10, 11],
+                        [
+                            video["title"],
+                            video["channel_title"],
+                            video["publish_time"],
+                            video["views"],
+                            video["likes"],
+                            video["dislikes"],
+                            video["comment_count"]
+                        ]
+                    ])
+                    print("\nTAGS:", video["tags"], "\n")
+            input("\nENTER para continuar")
 
         else:
             sys.exit(0)
