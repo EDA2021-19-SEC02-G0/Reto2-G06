@@ -181,7 +181,7 @@ def mainMenu(catalog):
                 print("Pais:", video["country"])
                 print("Likes/dislikes:", round(video["ratio_likes_dislikes"], 2))
                 print("Días en trend:", video["day_count"], "\n")
-                input("ENTER para continuar")
+            input("ENTER para continuar")
 
         elif int(inputs[0]) == 3:
             #REQ 3
@@ -201,7 +201,7 @@ def mainMenu(catalog):
                 print("Category Id:", video["category_id"])
                 print("Likes/dislikes:", round(video["ratio_likes_dislikes"], 2))
                 print("Días en trend:", video["day_count"], "\n")
-                input("ENTER para continuar")
+            input("\nENTER para continuar")
 
         elif int(inputs[0]) == 4:
             #REQ 4
