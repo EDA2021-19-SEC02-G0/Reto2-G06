@@ -48,7 +48,7 @@ def printMenu():
     print("0- Salir")
 
 
-def printTrace(trace: dict[str, float], processDesc: str = "Proceso en") -> None:
+def printTrace(trace, processDesc: str = "Proceso en") -> None:
     controller.mtTrace.printTrace(trace, processDesc)
 
 

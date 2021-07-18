@@ -69,7 +69,7 @@ class mtTrace:
         delta_memory = delta_memory / (1024**2)
         return delta_memory
     
-    def printTrace(trace: dict[str, float], processDesc: str = "Proceso en") -> None:
+    def printTrace(trace, processDesc: str = "Proceso en") -> None:
         """
         Imprime el tiempo y la memoria que toma un proceso.
 
